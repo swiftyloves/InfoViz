@@ -189,15 +189,13 @@ function drawBars(data) {
 drawBars(salaryData)
 
 ///////// Step 2.2 /////
-//let yArr = document.querySelectorAll('TD:nth-child(3)');
 
 let svgns = "http://www.w3.org/2000/svg";
-let charater =  ['A', 'B', 'C', 'D', 'E', 'F'];
 for (let i = 0; i < xArr.length; i++) {
     var text = document.createElementNS(svgns, 'text');
     text.setAttributeNS(null, 'x', parseInt(xArr[i].textContent));
     text.setAttributeNS(null, 'y', 120);
-    text.textContent = charater[i];
+    text.textContent = salaryData[i].name;
     document.getElementById('barChartBySVG').appendChild(text);
     var rect = document.createElementNS(svgns, 'rect');
     rect.setAttributeNS(null, 'x', parseInt(xArr[i].textContent));
