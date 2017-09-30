@@ -279,7 +279,16 @@ nameLabel = barChartD3
 </script>
 <P>Bonus question, 3.5, my answer is: </P>
 <p>
-  
+  <ul>
+    <li>
+      The resolution of bars created by Canvas is lower than the other two.
+    </li>
+    <li>
+      For the bar char created by Canvas, there is no new htel elements except Canvas tag. Yet in svg and d3, there are new elements (which tag is rect/text). 
+      <li>svg stands for Scalable vector graphics which is a feature of HTML5.D3.js is a library to manipulate elements in svg.
+        </li>
+    </li>
+  </ul>
 </p>
 <script>
 ///////////////////////////////////////////////////////////////////////////////
@@ -288,8 +297,8 @@ var salaryCompRange={min:0, max:3.5 }
 var salaryCompHeightRange={min:0, max:100 }
 //STEP 4.1 update the domain and range of salaryCompHeightScale that maps salaryCompRange to salaryCompHeightRange. 
 var salaryCompHeightScale=d3.scale.linear()
-                            .domain([0,0])// modify this line
-                            .range([0,0]);// modify this line
+                            .domain([0,3.5])// modify this line
+                            .range([0,100]);// modify this line
                            
 document.write("<p>Question 4.1 (should be 100): " + salaryCompHeightScale(3.5) +"</p>")
 
@@ -318,9 +327,44 @@ var salaryCompSVG = salaryCompDIV.append('svg')        // create an <svg> elemen
     .attr('class', 'd3Chart') // specify classes
 
 //YOUR WORK HERE 
+let salaryType = ['salaryA', 'salaryB', 'salaryC'];
+let labels = ['PA', 'PB', 'PC'];
+let colors = ['red', 'yellow', 'blue'];
 
+salaryCompSVG = salaryCompSVG
+.selectAll('g')
+.data(salaryData)
+.enter()
+.append('g');
 
-                         
+let creatSalary = function(order) {
+    salaryCompSVG
+    .append('rect')
+    .attr("class","label")
+    .attr("x", (d,ind) => xStartLoc + order*15 + ind*(120+spaceBetweenBar))
+    .attr("y", (d,i) => 140 - salaryCompHeightScale(d[salaryType[order]]))
+    .attr('height',(d,i) => salaryCompHeightScale(d[salaryType[order]]))
+    .attr('width',width)
+    .attr('fill', colors[order]);
+
+    salaryCompSVG
+    .append("text")
+    .text(labels[order])
+    .attr('x', (d,ind) => xStartLoc + order*15 + ind*(120+spaceBetweenBar))
+    .attr('y', 160)
+    .attr("font-family","Open Sans")
+    .attr("font-size","8pt");
+};
+
+creatSalary(0);
+creatSalary(1);
+creatSalary(2);
+
+salaryCompSVG
+.append("text")
+.text((d,ind) => "SalaryComp of " + d.name)
+.attr('x', (d,ind) => xStartLoc + ind*(120+spaceBetweenBar))
+.attr('y', 180);
 
 </script>
 
