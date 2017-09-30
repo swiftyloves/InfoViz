@@ -271,9 +271,9 @@ nameLabel = barChartD3
                  .enter()
                  .append("text")
                  .attr("class","label")
-                 .text('')// modify this line
-                 .attr("x",0)// modify this line
-                 .attr("y",0)// modify this line
+                 .text((d,ind) => d.name)// modify this line
+                 .attr("x", (d,ind) => xStartLoc+ind*(width+spaceBetweenBar))// modify this line
+                 .attr("y", 135)// modify this line
                  .attr("font-family","Arial")
                  .attr("font-size","8pt");
 
