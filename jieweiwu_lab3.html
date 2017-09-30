@@ -1,0 +1,327 @@
+<html>
+<HEAD>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<STYLE>
+h1 { font-family: 'Open Sans', sans-serif; font-weight: 400; }
+h2 { font-family: 'Open Sans', sans-serif; font-weight: 200; }
+h3 { font-family: 'Open Sans', sans-serif; font-weight: 200; }
+p { font-family: 'Open Sans', sans-serif; font-weight: 400; }
+td { font-family: 'Open Sans', sans-serif; font-weight: normal; }
+th { font-family: 'Open Sans', sans-serif; font-weight: bold; }
+li { font-family: 'Open Sans', sans-serif; font-weight: 400; }
+</STYLE>
+<script src="https://d3js.org/d3.v3.min.js"></script>
+</HEAD>
+
+<body>
+
+<h1>Lab 3-D3</h1>
+<p>User Name: Jie-Wei Wu</p> 
+<p>Lab Partner: Yu Liu</p>
+
+
+<canvas id="originalCanvas" width="200" height="200"></canvas>
+
+
+
+<!-- Part 2 draw the name-salary bar chart using svg  -->
+<svg width="300" height="200" viewBox="0 0 300 200" >
+<g id="barChartBySVG"  transform="translate(150,0)"> <!-- translate the svg to the right of the canvas element -->
+<text x="2" y="140" font-family="Arial" font-size="8pt">BarChart by svg</text>
+
+<!-- step 2.2: your work for here: -->
+<rect x="0" y="0" width="0" height="0" style="fill:rgb(0,0,0)"/></rect>
+<text x="0" y="0" font-family="Arial" font-size="8pt">A</text>
+
+</g>
+</svg>
+
+
+<script type="text/javascript">
+var salaryData = 
+            [{name:"A",salary:4,dept:"IT",salaryA:1, salaryB:3, salaryC:0},
+            {name:"B",salary:2,dept:"HR",salaryA:1, salaryB:0.5, salaryC:0.5},
+            {name:"C",salary:3,dept:"HR",salaryA:1, salaryB:1, salaryC:1},
+            {name:"D",salary:1,dept:"MG",salaryA:0.5, salaryB:0.5, salaryC:0},
+            {name:"E",salary:5,dept:"IT",salaryA:1, salaryB:3, salaryC:1},
+            {name:"F",salary:5,dept:"SL",salaryA:1, salaryB:0.5, salaryC:3.5}
+            ];
+
+
+/////////////////// HELPER FUNCTIONS BASED ON LAST LAB ////////////////////////////////////
+// helper function to calculate total salary
+function calculateTotalSalary(data) {
+  for (idx in data) {  // for every employee
+    employee = data[idx];  // grab the employee
+    // calculate their salary as a total of A/B/C and set it in the dataset
+    employee.salary = employee.salaryA + employee.salaryB + employee.salaryC;
+  }
+}
+calculateTotalSalary(salaryData);
+
+//storage for calculations. 
+var meansByDept={IT: 0, HR: 0, MG: 0, SL: 0}
+
+// helper functions to calculate means, overunder
+function calculateMean(data,dept) {
+  sum = 0; // sum
+  count = 0; // count
+  for (i = 0 ; i < data.length ; i++) {
+    employee = data[i];
+    if (employee.dept == dept) {
+      count = count + 1;
+      sum = sum + employee.salary;
+    }
+  }
+  meansByDept[dept] = sum/count;
+}
+
+function populateMeans(data,salaries) {
+  for (dept in data) {
+    calculateMean(salaries,dept);
+  }
+}
+
+populateMeans(meansByDept,salaryData);
+
+/// helper function to calculate over under
+function addOverUnderPayInfo(data,deptmeans) {
+  for (i = 0 ; i < data.length ; i++) {
+    employee = data[i];
+    employee.overunder = employee.salary - deptmeans[employee.dept];
+  }
+}
+
+addOverUnderPayInfo(salaryData,meansByDept);
+/////////////////// END HELPER FUNCTIONS BASED ON LAST LAB ////////////////////////////////////
+
+
+//settings for chart 
+var svgWidth=300
+var svgHeight=200 
+var xStartLoc=0 //the left offset from canvas to the first bar 
+var spaceBetweenBar=5
+var yStartLoc=105 // the top offset from canvas to the bottom of the bar. 
+var width=10 //width of bar 
+var xLoc=width+spaceBetweenBar 
+var heightRange={"min":10, "max":100}
+var colorRange={"min":0, "max":255};
+
+///////////////////////////////////////////////////////////////////////////////
+// STEP 1.1 complete the following function that calculate
+// returns a dictionary of min and max value of the field with input fieldName.
+function findMinMaxRange(data,fieldName) {
+    // you work here.  Use d3.min or d3.max to complete this question
+    var max = d3.max(d3.values(data));
+    let arr = [];
+    for (let i = 0; i < data.length; ++i) {
+        arr.push(data[i][fieldName]);
+    }
+
+    return {"min":d3.min(arr),"max":d3.max(arr)};
+}
+var overunderRange = findMinMaxRange(salaryData,"overunder")
+var salaryRange = findMinMaxRange(salaryData,"salary")
+
+document.write("<P>Step 1.1: overunder range should be -.5 to .5: " + overunderRange.min + " to " + overunderRange.max+"</p>");
+document.write("<P>salary range should be 1 to 5: " + salaryRange.min + " to " + salaryRange.max+"</p>");
+
+</script>
+
+<P>Calculate what should go in each of the missings cells for step 2.1</P>
+<TABLE>
+<TR><TH>Name</TH><TH>X</TH><TH>Y</TH><TH>height</TH><TH>color</TH></TR>
+<TR><TD>A</TD><TD>0</TD><TD>---</TD><TD>77.5</TD><TD>(0,0,0)</TD></TR>
+<TR><TD>B</TD><TD>---</TD><TD>---</TD><TD>32.5</TD><TD>(0,0,0)</TD></TR>
+<TR><TD>C</TD><TD>---</TD><TD>---</TD><TD>55</TD><TD>(0,0,255)</TD></TR>
+<TR><TD>D</TD><TD>---</TD><TD>---</TD><TD>10</TD><TD>(0,0,128)</TD></TR>
+<TR><TD>E</TD><TD>60</TD><TD>---</TD><TD>100</TD><TD>(0,0,255)</TD></TR>
+<TR><TD>F</TD><TD>---</TD><TD>---</TD><TD>100</TD><TD>(0,0,128)</TD></TR>
+</TABLE>
+
+
+
+
+<script>
+// Filling the table
+let xArr = document.querySelectorAll('TD:nth-child(2)');
+let yArr = document.querySelectorAll('TD:nth-child(3)');
+let heightArr = document.querySelectorAll('TD:nth-child(4)');
+for (let i = 0; i < yArr.length; i++) {
+    yArr[i].textContent = 200 - parseInt(heightArr[i].textContent);
+}
+for (let i = 1; i < xArr.length; i++) {
+    xArr[i].textContent = parseInt(xArr[i - 1].textContent) + 15;
+}
+//printing a bar chart with Canvas, no need to modify
+// input is the value
+// input range is the extent of the values the input can take
+// output range is what we want to transform to
+function calculateScale(input, inputDomain, outputRange) {
+    //helper function to scale values (e.g., height and color) for canvas without using D3
+    var inputDiff = inputDomain.max - inputDomain.min
+    var outputDiff = outputRange.max - outputRange.min
+    if ((input - inputDomain.min) == 0) {
+      return(outputRange.min);
+    }
+    return (input-inputDomain.min)/inputDiff*outputDiff+outputRange.min;
+}
+
+function drawBars(data) {
+    var originalCanvas = document.getElementById("originalCanvas");
+    var context = originalCanvas.getContext("2d"); 
+    originalCanvas.style.left = 10+"px";
+    originalCanvas.style.top = 150+"px";
+    originalCanvas.style.position = "absolute";
+    context.font = "8pt Arial";
+     var idx = -1;
+     for (idx in data) {
+          var val = data[idx].salary;
+          var heading = data[idx].name;
+          var color=Math.round(calculateScale(data[idx].overunder,overunderRange, colorRange))
+          context.fillStyle = "rgb(0,0,"+ color+ ")";
+          context.fillRect (xStartLoc+idx*(width+spaceBetweenBar), yStartLoc, width, -calculateScale(val,salaryRange, heightRange));
+          context.fillStyle = "rgb(40,40,40)";  
+          context.fillText(heading,xStartLoc+idx*(width+spaceBetweenBar )+width/2,yStartLoc+10);
+     }
+     context.fillText("Barchart by canvas",3,125)
+}
+drawBars(salaryData)
+
+///////// Step 2.2 /////
+//let yArr = document.querySelectorAll('TD:nth-child(3)');
+
+let svgns = "http://www.w3.org/2000/svg";
+let charater =  ['A', 'B', 'C', 'D', 'E', 'F'];
+for (let i = 0; i < xArr.length; i++) {
+    var text = document.createElementNS(svgns, 'text');
+    text.setAttributeNS(null, 'x', parseInt(xArr[i].textContent));
+    text.setAttributeNS(null, 'y', 120);
+    text.textContent = charater[i];
+    document.getElementById('barChartBySVG').appendChild(text);
+    var rect = document.createElementNS(svgns, 'rect');
+    rect.setAttributeNS(null, 'x', parseInt(xArr[i].textContent));
+    rect.setAttributeNS(null, 'y', parseInt(yArr[i].textContent) - 100);
+    rect.setAttributeNS(null, 'height', parseInt(heightArr[i].textContent));
+    rect.setAttributeNS(null, 'width', '10');
+    let color = Math.round(calculateScale(salaryData[i].overunder,overunderRange, colorRange));
+    rect.setAttributeNS(null, 'fill', "rgb(0,0,"+ color+ ")");
+    document.getElementById('barChartBySVG').appendChild(rect);
+}
+
+///////////////////////////////////////////  D3 CODE starts here /////////////
+//draw a bar chart with D3 
+
+var heightScale = d3.scale.linear()
+  .domain([salaryRange.min, salaryRange.max])
+  .range([heightRange.min, heightRange.max]); 
+
+///////////////////////////////////////////////////////////////////////////////
+//STEP 3.1 Complete colorScale such that colorScale will map the overunder value to the color range from 0 to 255. 
+var colorScale = d3.scale.linear()
+  .domain([-0.5,0.5])  // MODIFY HERE
+  .range([0,255]);  // MODIFY HERE
+
+document.write("<p>Question 3.1: testing colorScale(0), we get: " + colorScale(0) + ", should get " + calculateScale(0,{min:-0.5,max:.5},{min:0,max:255}) +"</p>");
+document.write("<p>testing colorscale colorScale(-.5), we get: " + colorScale(-.5) + ", should get " + calculateScale(-0.5,{min:-0.5,max:.5},{min:0,max:255}) +"</p>");
+document.write("<p>testing colorscale colorScale(0.5), we get: " + colorScale(.5) + ", should get " + calculateScale(0.5,{min:-0.5,max:.5},{min:0,max:255}) +"</p>");
+
+
+//setting up svg for the bar chart 
+var svg = d3.select('body')
+  .append('svg')        // create an <svg> element
+    .attr('width', 300) // set its dimentions
+    .attr('height', 200)
+    .append('g')            // create a <g> element
+    .attr('class', 'd3Chart'); // specify classes
+
+var barChartD3 = svg.append('g')
+             .attr('class',"barChartD3");
+var d3Title = barChartD3
+                  .append("text")
+                  .text("Barchart by d3")
+                  .attr('x',5)
+                  .attr('y',120+10+10)//because the title is 10 px below name labels. 
+                  .attr("font-family","Open Sans")
+                 .attr("font-size","8pt");             
+var bars = barChartD3.selectAll('rect')
+                        .data(salaryData)
+                        .enter();                        
+
+///////////////////////////////////////////////////////////////////////////////
+//STEP 3.2 Set up the correct x and y value for each bar. 
+bars = bars.append('rect')
+        .attr('x', (d,ind) => xStartLoc+ind*(width+spaceBetweenBar))  // modify this line
+        .attr('y', (d,ind) => 120 - heightScale(d.salary))  // modify this line
+        .attr('height',function(d,i){
+            return heightScale(d.salary)
+        })
+        .attr('width',width);
+
+xStartLoc+idx*(width+spaceBetweenBar)
+///////////////////////////////////////////////////////////////////////////////
+//STEP 3.3: change the following line to add color encoding to the chart 
+bars.style("fill", (d,ind) => "rgb(0,0," + colorScale(d.overunder) + ")");  // modify this line
+
+///////////////////////////////////////////////////////////////////////////////
+//STEP 3.4: add name labels to the bar chart. Use Y=120(y axis location)+10(offset so that names are below the bars) 
+nameLabel = barChartD3
+                 .selectAll("text.label")
+                 .data(salaryData)
+                 .enter()
+                 .append("text")
+                 .attr("class","label")
+                 .text('')// modify this line
+                 .attr("x",0)// modify this line
+                 .attr("y",0)// modify this line
+                 .attr("font-family","Arial")
+                 .attr("font-size","8pt");
+
+
+</script>
+<P>Bonus question, 3.5, my answer is: </P>
+<script>
+///////////////////////////////////////////////////////////////////////////////
+////draw salary-composition chart 
+var salaryCompRange={min:0, max:3.5 }
+var salaryCompHeightRange={min:0, max:100 }
+//STEP 4.1 update the domain and range of salaryCompHeightScale that maps salaryCompRange to salaryCompHeightRange. 
+var salaryCompHeightScale=d3.scale.linear()
+                            .domain([0,0])// modify this line
+                            .range([0,0]);// modify this line
+                           
+document.write("<p>Question 4.1 (should be 100): " + salaryCompHeightScale(3.5) +"</p>")
+
+
+    
+//STEP 4.1 and 4.2 Draw the salary composition chart
+//each salaryComp chart should have three components: 
+    //1) bars 
+    //2) name labels
+    //3) title
+//please refer to the lab handout for more information. 
+
+// we started this for you here
+
+//set up div and svg for salaryComp charts 
+var salaryCompDIV = d3.select('body')
+                        .append('div')
+var salaryCompTitle = salaryCompDIV.append('h3')
+                      .text("Salary Composition Charts")
+                      .attr("font-family","Open Sans");
+                      
+var salaryCompSVG = salaryCompDIV.append('svg')        // create an <svg> element
+    .attr('width', 900) // set its dimentions
+    .attr('height', 200)
+    .append('g')            // create a <g> element
+    .attr('class', 'd3Chart') // specify classes
+
+//YOUR WORK HERE 
+
+
+                         
+
+</script>
+
+</body>
+</html>
