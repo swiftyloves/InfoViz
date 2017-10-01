@@ -148,10 +148,10 @@ let xArr = document.querySelectorAll('TD:nth-child(2)');
 let yArr = document.querySelectorAll('TD:nth-child(3)');
 let heightArr = document.querySelectorAll('TD:nth-child(4)');
 for (let i = 0; i < yArr.length; i++) {
-    yArr[i].textContent = 200 - parseInt(heightArr[i].textContent);
+    yArr[i].textContent = 120 - parseFloat(heightArr[i].textContent);
 }
 for (let i = 1; i < xArr.length; i++) {
-    xArr[i].textContent = parseInt(xArr[i - 1].textContent) + 15;
+    xArr[i].textContent = parseFloat(xArr[i - 1].textContent) + 15;
 }
 //printing a bar chart with Canvas, no need to modify
 // input is the value
@@ -199,7 +199,7 @@ for (let i = 0; i < xArr.length; i++) {
     document.getElementById('barChartBySVG').appendChild(text);
     var rect = document.createElementNS(svgns, 'rect');
     rect.setAttributeNS(null, 'x', parseInt(xArr[i].textContent));
-    rect.setAttributeNS(null, 'y', parseInt(yArr[i].textContent) - 100);
+    rect.setAttributeNS(null, 'y', parseInt(yArr[i].textContent));
     rect.setAttributeNS(null, 'height', parseInt(heightArr[i].textContent));
     rect.setAttributeNS(null, 'width', '10');
     let color = Math.round(calculateScale(salaryData[i].overunder,overunderRange, colorRange));
