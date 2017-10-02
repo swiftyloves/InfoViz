@@ -259,7 +259,7 @@ bars = bars.append('rect')
 xStartLoc+idx*(width+spaceBetweenBar)
 ///////////////////////////////////////////////////////////////////////////////
 //STEP 3.3: change the following line to add color encoding to the chart 
-bars.style("fill", (d,ind) => "rgb(0,0," + colorScale(d.overunder) + ")");  // modify this line
+bars.style("fill", (d,ind) => return "rgb(0,0," + Math.round(colorScale(d.overunder)) + ")");  // modify this line
 
 ///////////////////////////////////////////////////////////////////////////////
 //STEP 3.4: add name labels to the bar chart. Use Y=120(y axis location)+10(offset so that names are below the bars) 
