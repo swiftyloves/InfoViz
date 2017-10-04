@@ -225,7 +225,7 @@
 
     var cx1_3="return subChartWidth*(i + 1/2);";
     var cy1_3="return svgHeight/2;";
-    var r1_3="return salaryData[i].salary;";
+    var r1_3="return chernoffFaceRadiusScale(d.salary);";
 
     document.write("<p>1.113 for all faces(make sure you write your equations as strings): cx:function(d,i){"+cx1_3+"}, cy:function(d,i){"+cy1_3+"}, r:function(d,i){"+r1_3+"} </p>");
 
@@ -240,9 +240,9 @@
     var r2_2=chernoffFaceRadiusScale(salaryData[1].salaryA);
     document.write("<p>1.122 for c4(should be 213, 88, 12): cx="+cx2_2+", cy="+cy2_2+", r="+r2_2+" </p>");
 
-    var cx2_3="subChartWidth*(i + 1/2)-chernoffFaceRadiusScale(salaryData[i].salary)/2;";//in string
-    var cy2_3="svgHeight/2-chernoffFaceRadiusScale(salaryData[i].salary)/2;";
-    var r2_3="chernoffFaceRadiusScale(salaryData[i].salaryA);";
+    var cx2_3="return subChartWidth * (i + 1/2) - chernoffFaceRadiusScale(d.salary) / 2;";//in string
+    var cy2_3="return svgHeight/2 - chernoffFaceRadiusScale(d.salary) / 2;";
+    var r2_3="return chernoffFaceRadiusScale(d.salaryA);";
     document.write("<p>1.123 for all right eyes(make sure you write your equations as strings): cx:function(d,i){"+cx2_3+"}, cy:function(d,i){"+cy2_3+"}, r:function(d,i){"+r2_3+"} </p>");
 
     //left eyes
@@ -256,46 +256,46 @@
     var r3_2=chernoffFaceRadiusScale(salaryData[1].salaryB);
     document.write("<p>1.132 for c6(should be 237 88 6): cx="+cx3_2+", cy="+cy3_2+", r="+r3_2+" </p>");
 
-    var cx3_3="subChartWidth*(i + 1/2)+chernoffFaceRadiusScale(salaryData[i].salary)/2;";
-    var cy3_3="svgHeight/2-chernoffFaceRadiusScale(salaryData[i].salary)/2";
-    var r3_3="chernoffFaceRadiusScale(salaryData[i].salaryB)";
+    var cx3_3="return subChartWidth*(i + 1/2)+chernoffFaceRadiusScale(d.salary)/2;";
+    var cy3_3="return svgHeight/2-chernoffFaceRadiusScale(d.salary)/2;";
+    var r3_3="return chernoffFaceRadiusScale(d.salaryB);";
     document.write("<p>1.133 for all left eyes(make sure you write your equations as strings): cx:function(d,i){"+cx3_3+"}, cy:function(d,i){"+cy3_3+"}, r:function(d,i){"+r3_3+"} </p>");
 
     //step 1.21 update cx, cy and r value for faces, leftEye and rightEye
     var faces=chernoffFaceHolder.append('circle')
         .attr("class","salary")
         .attr('cx',function(d,i){
-            return 0//your work here
+            return subChartWidth*(i + 1/2);
         })
-        .attr('cy',0)//your work here
+        .attr('cy', svgHeight/2)//your work here
         .attr('r',function(d,i){
-            return 0 //your work here
+            return chernoffFaceRadiusScale(d.salary);
         })
         .style('fill',"red");
 
     var rightEyes=chernoffFaceHolder.append('circle')
         .attr("class","salaryA")
         .attr('cx',function(d,i){
-            return 0//your work here
+            return subChartWidth * (i + 1/2) - chernoffFaceRadiusScale(d.salary)/2;
         })
         .attr('cy',function(d,i){
-            return 0//your work here
+            return svgHeight/2 - chernoffFaceRadiusScale(d.salary)/2;
         })
         .attr('r',function(d,i){
-            return 0//your work here
+            return chernoffFaceRadiusScale(d.salaryA);
         })
         .style('fill',"green");
 
     var leftEyes=chernoffFaceHolder.append('circle')
         .attr("class","salaryB")
         .attr('cx',function(d,i){
-            return 0
+            return subChartWidth*(i + 1/2)+chernoffFaceRadiusScale(d.salary)/2;
         })//your work here
         .attr('cy',function(d,i){
-            return 0
+            return svgHeight/2-chernoffFaceRadiusScale(d.salary)/2;
         })//your work here
         .attr('r',function(d,i){
-            return 0
+            return chernoffFaceRadiusScale(d.salaryB);
         })//your work here
         .style('fill',"green");
 
