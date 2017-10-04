@@ -1,0 +1,496 @@
+<html>
+<HEAD>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <STYLE>
+        h1 { font-family: 'Open Sans', sans-serif; font-weight: 400; }
+        h2 { font-family: 'Open Sans', sans-serif; font-weight: 200; }
+        h3 { font-family: 'Open Sans', sans-serif; font-weight: 200; }
+        p { font-family: 'Open Sans', sans-serif; font-weight: 400; }
+        td { font-family: 'Open Sans', sans-serif; font-weight: normal; }
+        th { font-family: 'Open Sans', sans-serif; font-weight: bold; }
+        li { font-family: 'Open Sans', sans-serif; font-weight: 400; }
+    </STYLE>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+</HEAD>
+
+<body>
+
+<h1>Lab 4-D3(2)</h1>
+<p>User Name:</p>
+<p>Lab Partner:</p>
+
+
+<script type="text/javascript">
+    var salaryData = [
+        {name:"A",dept:"IT",salaryA:1, salaryB:3, salaryC:0},
+        {name:"B",dept:"HR",salaryA:1, salaryB:0.5, salaryC:0.5},
+        {name:"C",dept:"HR",salaryA:1, salaryB:1, salaryC:1},
+        {name:"D",dept:"MG",salaryA:0.5, salaryB:0.5, salaryC:0},
+        {name:"E",dept:"IT",salaryA:1, salaryB:3, salaryC:1},
+        {name:"F",dept:"SL",salaryA:1, salaryB:0.5, salaryC:3.5}
+    ];
+    var listOfProjects=["salaryA","salaryB","salaryC"];
+
+    /////// HELPER FUNCTIONS  ////////////////////////////////////
+
+    function calculateTotalSalary(data,projectsList) {
+//input a data and a list of project
+//calculate the sum salary of all projects in the projectsList, and store it in the data under a field called “salary”
+
+        for (let idx in data) {  // for every employee (index)
+            let employee = data[idx];  // grab the employee
+            // calculate their salary as a total of all project
+            let salary=0;
+            for (let p of projectsList){
+                salary+=employee[p];
+            }
+            employee.salary = salary;
+        }
+    }
+    calculateTotalSalary(salaryData,listOfProjects);
+
+    function findDeptMean(data){
+        //calculate mean salary of each department
+//return a dictionary of department means.
+
+        var meansByDept = {};
+        for (let d of data){//find all unique departments
+            meansByDept[d["dept"]]=undefined; //temporarily set to undefined
+        }
+        for (let key in meansByDept){
+            //using d3 helper function to get mean
+            meansByDept[key]=d3.mean(data, function (d) {
+                if (d['dept'] == key) {
+                    return d.salary;
+                }
+            });
+        }
+        return meansByDept;
+    }
+    var meansByDept=findDeptMean(salaryData);
+
+
+    /// helper function to calculate over under
+    function addingOverunder(data){
+        //calculate and add overunder information to the data
+        for (let d of data){
+            d["overunder"]=d.salary-meansByDept[d.dept];
+        }
+    }
+    addingOverunder(salaryData);
+
+    function findMinMaxRange(data,fieldName){
+        let minValue=d3.min(data,function(d,i){
+            return d[fieldName];
+        });
+        let maxValue=d3.max(data,function(d,i){
+            return d[fieldName];
+        });
+        return ({"min":minValue,"max":maxValue})
+    }
+
+    var overunderRange=findMinMaxRange(salaryData,"overunder");
+    var salaryRange=findMinMaxRange(salaryData,"salary");
+
+    function findSalaryCompRange(data,projectList){
+        var salaryCompRange={min:Number.POSITIVE_INFINITY, max:Number.NEGATIVE_INFINITY}
+        for (let project of projectList){
+            let minMaxDict=findMinMaxRange(data,project);
+            if(minMaxDict.min<salaryCompRange.min){
+                salaryCompRange.min=minMaxDict.min;
+            }
+            if(minMaxDict.max>salaryCompRange.max){
+                salaryCompRange.max=minMaxDict.max;
+            }
+        }
+        return salaryCompRange
+    }
+    var salaryCompRange=findSalaryCompRange(salaryData,listOfProjects);
+
+    //////////// END HELPER FUNCTIONS BASED ON LAST LAB /////////////////////////////
+
+
+    /////////////////settings for chart
+    var svgWidth=900;
+    var svgHeight=200;
+    var subChartWidth=svgWidth/salaryData.length;
+
+    //////////////////plot bar charts/////////////////////
+    //settings for bar chart
+    var xStartLoc=30; //the left offset from canvas to the first bar
+    var spaceBetweenBar=5;
+    var yStartLoc=120; // the top offset from canvas to the bottom of the bar.
+    var width=10; //width of bar
+    var salaryCompHeightRange={min:0, max:100 };
+
+
+    var salaryCompHeightScale=d3.scale.linear()
+        .domain([salaryCompRange.min,salaryCompRange.max])
+        .range([ salaryCompHeightRange.min,salaryCompHeightRange.max]);
+
+    var salaryCompDIV = d3.select('body')
+        .append('div')
+        .attr("class","barCharts");
+
+    var salaryCompTitle=salaryCompDIV.append('h3')
+        .text("Salary Composition Bar Charts")
+        .attr("font-family","Open Sans");
+
+    var salaryCompSVG=salaryCompDIV.append('svg')        // create an <svg> element
+        .attr('width', svgWidth) // set its dimensions
+        .attr('height', svgHeight);
+
+    var salaryCompG=salaryCompSVG.selectAll('rect')
+        .data(salaryData)
+        .enter();
+    function plotEachBar(colorOfBar,xStart,fieldName){
+//this function will plot bars for a project, also label the bar.
+//return pointers to the bars and labels.
+        var barForSingleProject=salaryCompG
+            .append('rect')
+            .attr('class',fieldName)
+            .attr('x',function(d,i){
+                return xStartLoc+xStart+i*subChartWidth
+            })
+            .attr('y',function(d){
+                return yStartLoc-salaryCompHeightScale(d[fieldName])
+            })
+            .attr('height',function(d){
+                return salaryCompHeightScale(d[fieldName])
+            })
+            .attr('width',width)
+            .style('fill',colorOfBar);
+
+        var labelForSinglePorject=salaryCompG.append('text')
+            .text("P"+fieldName.slice(-1))
+            .attr('x',function(d,i){
+                return xStartLoc+xStart+i*subChartWidth
+            })
+            .attr('y',yStartLoc+10)
+            .attr("font-family","Arial")
+            .attr("font-size","8pt");
+        return (barForSingleProject,labelForSinglePorject)
+    }
+    colorList=["orange","red","blue"];
+    //draws bars for each project by looping through listOfProjects
+    for(let i in listOfProjects){
+        plotEachBar(colorList[i],i*(width+spaceBetweenBar),listOfProjects[i])
+    }
+
+    var salaryCompTitles=salaryCompG.append('text')
+        .text(function(d){
+            return "salaryComp of "+d.name})
+        .attr('x',function(d,i){
+            return xStartLoc/2+i*subChartWidth
+        })
+        .attr('y',yStartLoc+20)
+        .attr("font-family","Arial")
+        .attr("font-size","8pt");
+    ///////////////////plot chernoff faces////////////
+    //set up svg
+    var chernoffFaceRadiusRange={min:0, max:60};
+
+    var chernoffFaceRadiusScale=d3.scale.linear()
+        .domain([salaryCompRange.min, salaryRange.max])
+        .range([chernoffFaceRadiusRange.min, chernoffFaceRadiusRange.max]);
+
+    var chernoffFaceDIV = d3.select('body')
+        .append('div')
+        .attr("class","chernoffFaces");
+
+    var chernoffFaceTitle=chernoffFaceDIV.append('h3')
+        .text("Salary Composition Chernoff Faces")
+        .attr("font-family","Open Sans");
+    var chernoffFaceSVG=chernoffFaceDIV.append('svg')// create an <svg> element
+        .attr('width', svgWidth) // set its dimensions
+        .attr('height', svgHeight);
+
+    var chernoffFaceHolder=chernoffFaceSVG.selectAll('circle')
+        .data(salaryData)
+        .enter();
+
+    ///step 1.1: answer the following question by filling in the value of these variables. (please write your answers in terms of these pre-defined parameters and don't hard code values.)
+    //faces
+    var cx1_1=subChartWidth/2;
+    var cy1_1=svgHeight/2;
+    var r1_1=chernoffFaceRadiusScale(salaryData[0].salary);
+    document.write("<p>1.111 for c1(should be 75, 100, 48): cx="+cx1_1+", cy="+cy1_1+", r="+r1_1+" </p>");
+
+    var cx1_2="Your Answer Here";
+    var cy1_2="Your Answer Here";
+    var r1_2="Your Answer Here";
+    document.write("<p>1.112 for c2(should be 225, 100, 24): cx="+cx1_2+", cy="+cy1_2+", r="+r1_2+" </p>");
+
+    // If function (d,i) loops through the salaryData, write cx, cy and r value in terms of d and i.
+
+    var cx1_3="Your Answer Here";
+    var cy1_3="Your Answer Here";
+    var r1_3="Your Answer Here";
+
+    document.write("<p>1.113 for all faces(make sure you write your equations as strings): cx:function(d,i){"+cx1_3+"}, cy:function(d,i){"+cy1_3+"}, r:function(d,i){"+r1_3+"} </p>");
+
+    //right eyes
+    var cx2_1=subChartWidth/2-chernoffFaceRadiusScale(salaryData[0].salary)/2;
+    var cy2_1=svgHeight/2-chernoffFaceRadiusScale(salaryData[0].salary)/2;
+    var r2_1=chernoffFaceRadiusScale(salaryData[0].salaryA);
+    document.write("<p>1.121 for c3(should be 51, 76, 12): cx="+cx2_1+", cy="+cy2_1+", r="+r2_1+" </p>");
+
+    var cx2_2="Your Answer Here";
+    var cy2_2="Your Answer Here";
+    var r2_2="Your Answer Here";
+    document.write("<p>1.122 for c4(should be 213, 88, 12): cx="+cx2_2+", cy="+cy2_2+", r="+r2_2+" </p>");
+
+    var cx2_3="Your Answer Here";//in string
+    var cy2_3="Your Answer Here";
+    var r2_3="Your Answer Here";
+    document.write("<p>1.123 for all right eyes(make sure you write your equations as strings): cx:function(d,i){"+cx2_3+"}, cy:function(d,i){"+cy2_3+"}, r:function(d,i){"+r2_3+"} </p>");
+
+    //left eyes
+    var cx3_1="Your Answer Here";
+    var cy3_1="Your Answer Here";
+    var r3_1="Your Answer Here";
+    document.write("<p>1.131 for c5(should be 99 76 36): cx="+cx3_1+", cy="+cy3_1+", r="+r3_1+" </p>");
+
+    var cx3_2="Your Answer Here";
+    var cy3_2="Your Answer Here";
+    var r3_2="Your Answer Here";
+    document.write("<p>1.132 for c6(should be 237 88 6): cx="+cx3_2+", cy="+cy3_2+", r="+r3_2+" </p>");
+
+    var cx3_3="Your Answer Here";
+    var cy3_3="Your Answer Here";
+    var r3_3="Your Answer Here";
+    document.write("<p>1.133 for all left eyes(make sure you write your equations as strings): cx:function(d,i){"+cx3_3+"}, cy:function(d,i){"+cy3_3+"}, r:function(d,i){"+r3_3+"} </p>");
+
+    //step 1.21 update cx, cy and r value for faces, leftEye and rightEye
+    var faces=chernoffFaceHolder.append('circle')
+        .attr("class","salary")
+        .attr('cx',function(d,i){
+            return 0//your work here
+        })
+        .attr('cy',0)//your work here
+        .attr('r',function(d,i){
+            return 0 //your work here
+        })
+        .style('fill',"red");
+
+    var rightEyes=chernoffFaceHolder.append('circle')
+        .attr("class","salaryA")
+        .attr('cx',function(d,i){
+            return 0//your work here
+        })
+        .attr('cy',function(d,i){
+            return 0//your work here
+        })
+        .attr('r',function(d,i){
+            return 0//your work here
+        })
+        .style('fill',"green");
+
+    var leftEyes=chernoffFaceHolder.append('circle')
+        .attr("class","salaryB")
+        .attr('cx',function(d,i){
+            return 0
+        })//your work here
+        .attr('cy',function(d,i){
+            return 0
+        })//your work here
+        .attr('r',function(d,i){
+            return 0
+        })//your work here
+        .style('fill',"green");
+
+    //step 1.3, updating attribute "d"
+    var mouths=chernoffFaceHolder
+        .append('path')
+        .attr("class","salaryC")
+        .attr('d',function(d,i){
+            r=0;//your work here
+            Ax=0;//your work here
+            Ay=0;//your work here
+            Cx=0;//your work here
+            Cy=0;//your work here
+            Bx=0;//your work here
+            By=0;//your work here
+            d="M "+Ax+' '+Ay+' Q '+Bx+' '+By+' '+Cx+' '+Cy+' ';
+            return d
+        })//your work here
+        .style('fill',"orange");
+
+    //step 1.3, add titles for each subchart.
+    var chernoffTitle=chernoffFaceHolder.append('text')
+        .text(function(d,i){
+            return 'salaryComp of ' //your work here
+        })//your work here
+        .attr('x',function(d,i){
+            return 0 //your work here
+        })
+        .attr('y',0)//your work here
+        .attr("font-family","Arial")
+        .attr("font-size","8pt");
+
+    // ////////////////Part2 add data and update chart ///////////////////////
+
+    salaryDdata=[1,1.4,2,0,2.5,0];
+    //step 2.1 updates the data, ranges and scale (DONE).
+    function updateDataRangeScale(project,projectData){
+        if(listOfProjects.indexOf(project)==-1){//check if we have already added the project or not.
+            // Add project data(i,e., salaryDdata) to each employee’s data under the key “salaryD”
+            for (let i in salaryData){
+                salaryData[i][project]=projectData[i];
+            }
+            //Add project(e.g., “salaryD”) to the listOfProjects. Now it should contain [“salaryA”,”salaryB”,”salaryC”,”salaryD”]
+            listOfProjects.push(project);
+            // Calculate the new total salary and store in salaryData
+            calculateTotalSalary(salaryData,listOfProjects);
+            // Find mean of each department
+            meansByDept=findDeptMean(salaryData);
+            // Add overunder information for each employee
+            addingOverunder(salaryData);
+            //Calculate salaryRange
+            salaryRange=findMinMaxRange(salaryData,"salary");
+            //Calculate salaryCompRange
+            salaryCompRange=findSalaryCompRange(salaryData,listOfProjects);
+            //Calculate overunderRange
+            overunderRange=findMinMaxRange(salaryData,"overunder");
+            //Update ChernoffFaceRadiusScale (done).
+            chernoffFaceRadiusScale.domain([salaryCompRange.min,salaryRange.max]);
+        }
+    }
+    duration=800;
+//    d3.select("body").transition().duration(duration).style("color", "red");
+
+    function updateFaces(){
+        chernoffFaceDIV.selectAll("circle."+"salary")
+            .transition()
+            .duration(duration)
+            .attr('r',function(d,i){
+                return chernoffFaceRadiusScale(d.salary)
+            })
+    }
+    //Step 2.2
+    function updateRightEyes(){
+        //your work here
+    }
+    function updateLeftEyes(){
+        //your work here
+    }
+
+
+    function updateMouths(){
+        //your work here
+    }
+
+    //Step 2.3 add salaryAsNoses
+    function addNoses(){
+        var noses=chernoffFaceHolder
+            .append('ellipse')
+            .attr("class","salaryD")
+            .attr('cx',function(d,i){
+                return 0
+            })//your work here
+            .attr('cy',0)//your work here
+            .attr('rx',function(d){
+                return 0//set to zero to add animation
+            })
+            .attr('ry',function(d){
+                return 0 //set zero to add animation
+            })
+            .style('fill',"blue");
+
+        noses.transition()
+            .duration(duration)
+            .attr('rx',function(d){
+                return 0//your work here
+            })
+            .attr('ry',function(d){
+                return 0//your work here
+            });
+    }
+
+    function update(){
+        updateDataRangeScale('salaryD',salaryDdata);
+        updateFaces();
+        updateLeftEyes();
+        updateRightEyes();
+        updateMouths();
+        addNoses();
+    }
+
+    chernoffButton=chernoffFaceDIV
+        .append("button")
+        .text("update")
+        .attr("type","button")
+        .attr("value","update")
+        .attr("onclick","update()")
+        .style("height",50)
+        .style("width",100);
+
+    ///////////////////Part3 tooltip /////////////////
+//    var chernoffTips=chernoffFaceDIV.append("div")
+//        .attr("class",'tooltip')
+//        .style("display","none")
+//        .style('position',"absolute")
+//        .style("fill","black");
+//
+//    function handleMouseOver(d,i){
+//        chernoffTips.style("display","inline");
+//    }
+//    function handleMouseMove(d,i){
+//        var fieldName=d3.select(this).attr('class');
+//        chernoffTips.text(d.name+" "+fieldName+": "+d[fieldName])
+//            .style("left", (d3.event.pageX - 34) + "px")
+//            .style("top", (d3.event.pageY - 12) + "px")
+//            .style("color","black");
+//    }
+//    function handleMouseOut(d,i){
+//        chernoffTips.style("display", "none");
+//    }
+//
+//    chernoffFaceDIV.selectAll("circle")
+//        .on("mouseover", handleMouseOver)
+//        .on("mouseout",handleMouseOut)
+//        .on("mousemove", handleMouseMove);
+//    chernoffFaceDIV.selectAll("path")
+//        .on("mouseover",handleMouseOver)
+//        .on("mouseout",handleMouseOut)
+//        .on("mousemove", handleMouseMove) ;
+//    chernoffFaceDIV.selectAll("ellipse")
+//        .on("mouseover", handleMouseOver)
+//        .on("mouseout",handleMouseOut)
+//        .on("mousemove", handleMouseMove);
+//
+//    ///////////part 3 end////////////////
+//    //////part 4////////
+//    //step 4.1 compelete the following function
+//    // Hint if you use the helper function plotEachBar(), this can be done with one line of code
+//    //Call this function in update()
+//    function addSalaryDbars(){
+//        //your work here
+//    }
+//    //step 4.2 adding axis
+//    var yAxisScale=d3.scale.linear()
+//        .domain([salaryCompRange.min,salaryCompRange.max])
+//        .range([ salaryCompHeightRange.max,salaryCompHeightRange.min]);
+//
+//    var yAxis = d3.svg.axis()
+//        .scale(yAxisScale)
+//        .orient("left");
+//
+//    salaryCompG.append('g')
+//        .call(yAxis)
+//        .attr('transform',function(d,i){
+//            let x=0;//your work here
+//            let y=0;//your work here
+//            return 'translate('+x+','+y+')'//your work here
+//        });
+
+    //step 4.3 adding tooltips for bar charts
+
+    //part5 pros and cons
+    // What do you think the pros and cons of using this kind of representation? Are there datasets that are more or less appropriate for this kind of encoding?  You can answer relative to the bar charts if it helps to be concrete.
+    var answerToPart5='write your answer here';
+    document.write("<p>Part 5: "+answerToPart5+"</p>")
+</script>
+
+</body>
+</html>
