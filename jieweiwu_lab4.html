@@ -216,16 +216,16 @@
     var r1_1=chernoffFaceRadiusScale(salaryData[0].salary);
     document.write("<p>1.111 for c1(should be 75, 100, 48): cx="+cx1_1+", cy="+cy1_1+", r="+r1_1+" </p>");
 
-    var cx1_2="Your Answer Here";
-    var cy1_2="Your Answer Here";
-    var r1_2="Your Answer Here";
+    var cx1_2=subChartWidth*(1 + 1/2);
+    var cy1_2=svgHeight/2;
+    var r1_2=chernoffFaceRadiusScale(salaryData[1].salary);
     document.write("<p>1.112 for c2(should be 225, 100, 24): cx="+cx1_2+", cy="+cy1_2+", r="+r1_2+" </p>");
 
     // If function (d,i) loops through the salaryData, write cx, cy and r value in terms of d and i.
 
-    var cx1_3="Your Answer Here";
-    var cy1_3="Your Answer Here";
-    var r1_3="Your Answer Here";
+    var cx1_3="return subChartWidth*(i + 1/2);";
+    var cy1_3="return svgHeight/2;";
+    var r1_3="return salaryData[i].salary;";
 
     document.write("<p>1.113 for all faces(make sure you write your equations as strings): cx:function(d,i){"+cx1_3+"}, cy:function(d,i){"+cy1_3+"}, r:function(d,i){"+r1_3+"} </p>");
 
@@ -235,30 +235,30 @@
     var r2_1=chernoffFaceRadiusScale(salaryData[0].salaryA);
     document.write("<p>1.121 for c3(should be 51, 76, 12): cx="+cx2_1+", cy="+cy2_1+", r="+r2_1+" </p>");
 
-    var cx2_2="Your Answer Here";
-    var cy2_2="Your Answer Here";
-    var r2_2="Your Answer Here";
+    var cx2_2=subChartWidth*(1 + 1/2)-chernoffFaceRadiusScale(salaryData[1].salary)/2;
+    var cy2_2=svgHeight/2-chernoffFaceRadiusScale(salaryData[1].salary)/2;
+    var r2_2=chernoffFaceRadiusScale(salaryData[1].salaryA);
     document.write("<p>1.122 for c4(should be 213, 88, 12): cx="+cx2_2+", cy="+cy2_2+", r="+r2_2+" </p>");
 
-    var cx2_3="Your Answer Here";//in string
-    var cy2_3="Your Answer Here";
-    var r2_3="Your Answer Here";
+    var cx2_3="subChartWidth*(i + 1/2)-chernoffFaceRadiusScale(salaryData[i].salary)/2;";//in string
+    var cy2_3="svgHeight/2-chernoffFaceRadiusScale(salaryData[i].salary)/2;";
+    var r2_3="chernoffFaceRadiusScale(salaryData[i].salaryA);";
     document.write("<p>1.123 for all right eyes(make sure you write your equations as strings): cx:function(d,i){"+cx2_3+"}, cy:function(d,i){"+cy2_3+"}, r:function(d,i){"+r2_3+"} </p>");
 
     //left eyes
-    var cx3_1="Your Answer Here";
-    var cy3_1="Your Answer Here";
-    var r3_1="Your Answer Here";
+    var cx3_1=subChartWidth*(0 + 1/2)+chernoffFaceRadiusScale(salaryData[0].salary)/2;
+    var cy3_1=svgHeight/2-chernoffFaceRadiusScale(salaryData[0].salary)/2;
+    var r3_1=chernoffFaceRadiusScale(salaryData[0].salaryB);
     document.write("<p>1.131 for c5(should be 99 76 36): cx="+cx3_1+", cy="+cy3_1+", r="+r3_1+" </p>");
 
-    var cx3_2="Your Answer Here";
-    var cy3_2="Your Answer Here";
-    var r3_2="Your Answer Here";
+    var cx3_2=subChartWidth*(1 + 1/2)+chernoffFaceRadiusScale(salaryData[1].salary)/2;;
+    var cy3_2=svgHeight/2-chernoffFaceRadiusScale(salaryData[1].salary)/2;
+    var r3_2=chernoffFaceRadiusScale(salaryData[1].salaryB);
     document.write("<p>1.132 for c6(should be 237 88 6): cx="+cx3_2+", cy="+cy3_2+", r="+r3_2+" </p>");
 
-    var cx3_3="Your Answer Here";
-    var cy3_3="Your Answer Here";
-    var r3_3="Your Answer Here";
+    var cx3_3="subChartWidth*(i + 1/2)+chernoffFaceRadiusScale(salaryData[i].salary)/2;";
+    var cy3_3="svgHeight/2-chernoffFaceRadiusScale(salaryData[i].salary)/2";
+    var r3_3="chernoffFaceRadiusScale(salaryData[i].salaryB)";
     document.write("<p>1.133 for all left eyes(make sure you write your equations as strings): cx:function(d,i){"+cx3_3+"}, cy:function(d,i){"+cy3_3+"}, r:function(d,i){"+r3_3+"} </p>");
 
     //step 1.21 update cx, cy and r value for faces, leftEye and rightEye
