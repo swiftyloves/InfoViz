@@ -442,6 +442,10 @@
             .attr('ry',function(d){
                 return chernoffFaceRadiusScale(d.salaryD) / 2;
             });
+        chernoffFaceDIV.selectAll("ellipse")
+       .on("mouseover", handleMouseOver)
+       .on("mouseout",handleMouseOut)
+       .on("mousemove", handleMouseMove);
     }
 
     function update(){
@@ -463,38 +467,36 @@
         .style("width",100);
 
     ///////////////////Part3 tooltip /////////////////
-//    var chernoffTips=chernoffFaceDIV.append("div")
-//        .attr("class",'tooltip')
-//        .style("display","none")
-//        .style('position',"absolute")
-//        .style("fill","black");
-//
-//    function handleMouseOver(d,i){
-//        chernoffTips.style("display","inline");
-//    }
-//    function handleMouseMove(d,i){
-//        var fieldName=d3.select(this).attr('class');
-//        chernoffTips.text(d.name+" "+fieldName+": "+d[fieldName])
-//            .style("left", (d3.event.pageX - 34) + "px")
-//            .style("top", (d3.event.pageY - 12) + "px")
-//            .style("color","black");
-//    }
-//    function handleMouseOut(d,i){
-//        chernoffTips.style("display", "none");
-//    }
-//
-//    chernoffFaceDIV.selectAll("circle")
-//        .on("mouseover", handleMouseOver)
-//        .on("mouseout",handleMouseOut)
-//        .on("mousemove", handleMouseMove);
-//    chernoffFaceDIV.selectAll("path")
-//        .on("mouseover",handleMouseOver)
-//        .on("mouseout",handleMouseOut)
-//        .on("mousemove", handleMouseMove) ;
-//    chernoffFaceDIV.selectAll("ellipse")
-//        .on("mouseover", handleMouseOver)
-//        .on("mouseout",handleMouseOut)
-//        .on("mousemove", handleMouseMove);
+   var chernoffTips=chernoffFaceDIV.append("div")
+       .attr("class",'tooltip')
+       .style("display","none")
+       .style('position',"absolute")
+       .style("fill","black");
+
+   function handleMouseOver(d,i){
+        console.log('handleMouseOver d:', d);
+       chernoffTips.style("display","inline");
+   }
+   function handleMouseMove(d,i){
+       var fieldName=d3.select(this).attr('class');
+       chernoffTips.text(d.name+" "+fieldName+": "+d[fieldName])
+           .style("left", (d3.event.pageX - 34) + "px")
+           .style("top", (d3.event.pageY - 12) + "px")
+           .style("color","black");
+   }
+   function handleMouseOut(d,i){
+       chernoffTips.style("display", "none");
+   }
+
+   chernoffFaceDIV.selectAll("circle")
+       .on("mouseover", handleMouseOver)
+       .on("mouseout",handleMouseOut)
+       .on("mousemove", handleMouseMove);
+   chernoffFaceDIV.selectAll("path")
+       .on("mouseover",handleMouseOver)
+       .on("mouseout",handleMouseOut)
+       .on("mousemove", handleMouseMove) ;
+   
 //
 //    ///////////part 3 end////////////////
 //    //////part 4////////
