@@ -423,13 +423,13 @@
             .append('ellipse')
             .attr("class","salaryD")
             .attr('cx',function(d,i){
-                return 0
-            })//your work here
-            .attr('cy',0)//your work here
-            .attr('rx',function(d){
+                return subChartWidth * (i + 1/2);
+            })
+            .attr('cy', svgHeight / 2)
+            .attr('rx', function(d){
                 return 0//set to zero to add animation
             })
-            .attr('ry',function(d){
+            .attr('ry', function(d){
                 return 0 //set zero to add animation
             })
             .style('fill',"blue");
@@ -437,10 +437,10 @@
         noses.transition()
             .duration(duration)
             .attr('rx',function(d){
-                return 0//your work here
+                return chernoffFaceRadiusScale(d.salaryD);
             })
             .attr('ry',function(d){
-                return 0//your work here
+                return chernoffFaceRadiusScale(d.salaryD) / 2;
             });
     }
 
