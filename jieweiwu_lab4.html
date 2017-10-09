@@ -330,34 +330,37 @@
 
     // ////////////////Part2 add data and update chart ///////////////////////
 
-    salaryDdata=[1,1.4,2,0,2.5,0];
+    let salaryDdata = [1,1.4,2,0,2.5,0];
     //step 2.1 updates the data, ranges and scale (DONE).
-    function updateDataRangeScale(project,projectData){
-        if(listOfProjects.indexOf(project)==-1){//check if we have already added the project or not.
+    function updateDataRangeScale(project, projectData) {
+        // project would be the name of project (string)
+        // listOfProjects is an array of strings, i.e., ["salaryA","salaryB","salaryC" ...]; 
+        if (listOfProjects.indexOf(project) == -1) {//check if we have already added the project or not.
             // Add project data(i,e., salaryDdata) to each employee’s data under the key “salaryD”
             for (let i in salaryData){
-                salaryData[i][project]=projectData[i];
+                salaryData[i][project] = projectData[i];
             }
             //Add project(e.g., “salaryD”) to the listOfProjects. Now it should contain [“salaryA”,”salaryB”,”salaryC”,”salaryD”]
             listOfProjects.push(project);
-            // Calculate the new total salary and store in salaryData
+            // Update the new total salary and store in salaryData
             calculateTotalSalary(salaryData,listOfProjects);
-            // Find mean of each department
-            meansByDept=findDeptMean(salaryData);
+            // Find mean of each department 
+            //// er, it seems to we didn't use this?
+            meansByDept = findDeptMean(salaryData);
             // Add overunder information for each employee
-            addingOverunder(salaryData);
+            addingOverunder( salaryData);
             //Calculate salaryRange
-            salaryRange=findMinMaxRange(salaryData,"salary");
+            salaryRange = findMinMaxRange(salaryData,"salary");
             //Calculate salaryCompRange
-            salaryCompRange=findSalaryCompRange(salaryData,listOfProjects);
+            salaryCompRange = findSalaryCompRange(salaryData,listOfProjects);
             //Calculate overunderRange
-            overunderRange=findMinMaxRange(salaryData,"overunder");
+            overunderRange = findMinMaxRange(salaryData,"overunder");
             //Update ChernoffFaceRadiusScale (done).
             chernoffFaceRadiusScale.domain([salaryCompRange.min,salaryRange.max]);
         }
     }
-    duration=800;
-//    d3.select("body").transition().duration(duration).style("color", "red");
+    duration = 800;
+   // d3.select("body").transition().duration(duration).style("color", "red");
 
     function updateFaces(){
         chernoffFaceDIV.selectAll("circle."+"salary")
@@ -369,15 +372,49 @@
     }
     //Step 2.2
     function updateRightEyes(){
-        //your work here
+        chernoffFaceDIV.selectAll("circle."+"salaryA")
+            .transition()
+            .duration(duration)
+            .attr('cx',function(d,i){
+            return subChartWidth * (i + 1 / 2) - chernoffFaceRadiusScale(d.salary)/2;
+            })
+            .attr('cy',function(d,i){
+                return svgHeight / 2 - chernoffFaceRadiusScale(d.salary)/2;
+            })
+            .attr('r',function(d,i){
+                return chernoffFaceRadiusScale(d.salaryA)
+            })
     }
     function updateLeftEyes(){
-        //your work here
+        chernoffFaceDIV.selectAll("circle."+"salaryB")
+            .transition()
+            .duration(duration)
+            .attr('cx',function(d,i){
+                return subChartWidth * (i + 1 / 2) + chernoffFaceRadiusScale(d.salary) / 2;
+            })
+            .attr('cy',function(d,i){
+                return svgHeight / 2 - chernoffFaceRadiusScale(d.salary) / 2;
+            })
+            .attr('r',function(d,i){
+                return chernoffFaceRadiusScale(d.salaryB)
+            })
     }
 
-
     function updateMouths(){
-        //your work here
+        chernoffFaceDIV.selectAll("path."+"salaryC")
+            .transition()
+            .duration(duration)
+            .attr('d',function(d,i){
+                r = chernoffFaceRadiusScale(d.salary);
+                Ax = subChartWidth * (i + 1 / 2) - r / 2;
+                Ay = svgHeight / 2 + r / 2;
+                Cx = subChartWidth * (i + 1 / 2) + r / 2;
+                Cy = svgHeight / 2 + r / 2;
+                Bx = subChartWidth * (i + 1 / 2);
+                By = svgHeight / 2 + r / 2 + chernoffFaceRadiusScale(d.salaryC);
+                d = "M " + Ax + ' ' + Ay + ' Q ' + Bx + ' ' + By + ' ' + Cx + ' ' + Cy + ' ';
+                return d;
+            })
     }
 
     //Step 2.3 add salaryAsNoses
@@ -416,7 +453,7 @@
         addNoses();
     }
 
-    chernoffButton=chernoffFaceDIV
+    chernoffButton = chernoffFaceDIV
         .append("button")
         .text("update")
         .attr("type","button")
