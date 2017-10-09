@@ -265,7 +265,7 @@
     var faces=chernoffFaceHolder.append('circle')
         .attr("class","salary")
         .attr('cx',function(d,i){
-            return subChartWidth*(i + 1/2);
+            return subChartWidth * (i + 1/2);
         })
         .attr('cy', svgHeight/2)//your work here
         .attr('r',function(d,i){
@@ -304,15 +304,15 @@
         .append('path')
         .attr("class","salaryC")
         .attr('d',function(d,i){
-            r=0;//your work here
-            Ax=0;//your work here
-            Ay=0;//your work here
-            Cx=0;//your work here
-            Cy=0;//your work here
-            Bx=0;//your work here
-            By=0;//your work here
-            d="M "+Ax+' '+Ay+' Q '+Bx+' '+By+' '+Cx+' '+Cy+' ';
-            return d
+            r = chernoffFaceRadiusScale(d.salary);
+            Ax = subChartWidth * (i + 1 / 2) - r / 2;
+            Ay = svgHeight / 2 + r / 2;
+            Cx = subChartWidth * (i + 1 / 2) + r / 2;
+            Cy = svgHeight / 2 + r / 2;
+            Bx = subChartWidth * (i + 1 / 2);
+            By = svgHeight / 2 + r / 2 + chernoffFaceRadiusScale(d.salaryC);
+            d = "M " + Ax + ' ' + Ay + ' Q ' + Bx + ' ' + By + ' ' + Cx + ' ' + Cy + ' ';
+            return d;
         })//your work here
         .style('fill',"orange");
 
