@@ -455,6 +455,7 @@
         updateRightEyes();
         updateMouths();
         addNoses();
+        addSalaryDbars();
     }
 
     chernoffButton = chernoffFaceDIV
@@ -503,9 +504,10 @@
 //    //step 4.1 compelete the following function
 //    // Hint if you use the helper function plotEachBar(), this can be done with one line of code
 //    //Call this function in update()
-//    function addSalaryDbars(){
-//        //your work here
-//    }
+       function addSalaryDbars(){
+           plotEachBar('green', 3*(width+spaceBetweenBar), 'salaryD');
+       }
+
 //    //step 4.2 adding axis
 //    var yAxisScale=d3.scale.linear()
 //        .domain([salaryCompRange.min,salaryCompRange.max])
