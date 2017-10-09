@@ -475,7 +475,6 @@
        .style("fill","black");
 
    function handleMouseOver(d,i){
-        console.log('handleMouseOver d:', d);
        chernoffTips.style("display","inline");
    }
    function handleMouseMove(d,i){
@@ -506,6 +505,11 @@
 //    //Call this function in update()
        function addSalaryDbars(){
            plotEachBar('green', 3*(width+spaceBetweenBar), 'salaryD');
+
+           d3.select('.barCharts').select('svg').selectAll("rect")
+           .on("mouseover", handleMouseOver)
+           .on("mouseout",handleMouseOut)
+           .on("mousemove", handleMouseMove);
        }
 
 //    //step 4.2 adding axis
@@ -526,6 +530,10 @@
 //        });
 
     //step 4.3 adding tooltips for bar charts
+    d3.select('.barCharts').select('svg').selectAll("rect")
+       .on("mouseover", handleMouseOver)
+       .on("mouseout",handleMouseOut)
+       .on("mousemove", handleMouseMove);
 
     //part5 pros and cons
     // What do you think the pros and cons of using this kind of representation? Are there datasets that are more or less appropriate for this kind of encoding?  You can answer relative to the bar charts if it helps to be concrete.
