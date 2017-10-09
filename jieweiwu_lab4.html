@@ -513,21 +513,21 @@
        }
 
 //    //step 4.2 adding axis
-//    var yAxisScale=d3.scale.linear()
-//        .domain([salaryCompRange.min,salaryCompRange.max])
-//        .range([ salaryCompHeightRange.max,salaryCompHeightRange.min]);
-//
-//    var yAxis = d3.svg.axis()
-//        .scale(yAxisScale)
-//        .orient("left");
-//
-//    salaryCompG.append('g')
-//        .call(yAxis)
-//        .attr('transform',function(d,i){
-//            let x=0;//your work here
-//            let y=0;//your work here
-//            return 'translate('+x+','+y+')'//your work here
-//        });
+    var yAxisScale = d3.scale.linear()
+        .domain([salaryCompRange.min,salaryCompRange.max])
+        .range([ salaryCompHeightRange.max,salaryCompHeightRange.min]);
+
+    var yAxis = d3.svg.axis()
+        .scale(yAxisScale)
+        .orient("left");
+
+    salaryCompG.append('g')
+        .call(yAxis)
+        .attr('transform',function(d,i){
+            let x = xStartLoc + i * (subChartWidth);
+            let y = 20;
+            return 'translate(' + x + ',' + y +')';
+        });
 
     //step 4.3 adding tooltips for bar charts
     d3.select('.barCharts').select('svg').selectAll("rect")
@@ -537,7 +537,8 @@
 
     //part5 pros and cons
     // What do you think the pros and cons of using this kind of representation? Are there datasets that are more or less appropriate for this kind of encoding?  You can answer relative to the bar charts if it helps to be concrete.
-    var answerToPart5='write your answer here';
+    var answerToPart5= `
+        `;
     document.write("<p>Part 5: "+answerToPart5+"</p>")
 </script>
 
