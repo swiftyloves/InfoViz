@@ -1,0 +1,148 @@
+<html>
+<HEAD>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+    <!-- files for lab5  -->
+    <link rel="stylesheet" type="text/css" href="lab5.css">
+    <script src="lab5HelperFunctions.js"></script>
+    <script src="lab5Pie.js"></script>
+    <script src="lab5Map.js"></script>
+</HEAD>
+
+<body>
+
+<h1>Lab 5-D3(3)</h1>
+<p>User Name:</p>
+<p>Lab Partner:</p>
+
+<script type="text/javascript">
+    /////////////////settings for chart ////
+    var svgWidth = 1200;
+    var svgHeight = 600;
+    var padding = 20;
+    //////////////////settings for charts/////////////////////
+    var subChartHorizontalN = 10;//number of subCharts in one row
+
+    //////////////////settings for ranges/////////////////////
+    var meansByDept = {};
+    var overunderRange = {};
+    var salaryRange = {};
+    var salaryCompRange = {};
+
+
+    var projectList = ["salaryA", "salaryB", "salaryC", "salaryD"];
+
+    //Step 0.3 load the data and call the function ready
+    queue()
+        .defer(d3.json, "salaryData.json")
+        .defer(d3.json, "us.json")
+        .await(ready);
+
+
+    function ready(error, sd, u) {
+        // this function is called after all datasets are loaded.
+        //the order the variables(sd and u) is decided by our queue.
+        var salaryData = sd;
+        var us = u;
+        //Step 0.4 update the data
+        updateDataAndRange(salaryData, projectList);
+
+        //Part 1 draw pie chart
+        //set up svg for pie charts
+        var pieSvg = d3.select("body")
+            .append("svg")
+            .attr("class", "pie")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight)
+            .style("top", padding + "px")
+            .style("left", padding + "px");
+
+        //Part1 draw pie chart and store
+        //Edit in pie.js
+        var colorScale = drawPie(salaryData, projectList, pieSvg);
+
+        //Part 2 draw map
+        // Edit in map.js
+        var mapSvg = d3.select("body")
+            .append("svg")
+            .attr("class", "map")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight);
+        var symbols = drawMap(us, salaryData, mapSvg);
+
+        //Part 3 Add interaction
+        addInteractivity(mapSvg, symbols, salaryData, pieSvg, colorScale);
+    }
+
+    //part 3 add interaction
+    function addInteractivity(mapSvg, symbols, salaryData, pieSvg, colorScale) {
+        //settings for for text.
+        var textX = svgWidth - padding;
+        var textY = svgHeight * 0.2;
+        var fontSize = 20;
+        var mapInfo = mapSvg.append('g')
+            .attr("class", "information");
+        //Initiate 3 variables for each line.
+        var line1 = mapInfo.append("text")
+            .text('Employee Data:')
+            .style('text-anchor', "end")
+            .attr('x', textX)
+            .attr('y', textY)
+            .style('fill', "white")
+            .style("font-size", fontSize * 1.5 + "px");
+        var employeeInfo = mapInfo.append("text")
+            .text('Employee: work(s) in ')
+            .attr('x', textX)
+            .attr('y', textY + fontSize * 2)
+            .style("display", 'none')
+            .style('text-anchor', "end")
+            .style('fill', "darkblue")
+            .style("font-size", fontSize + "px");
+        var salaryInfo = mapInfo.append("text")
+            .text('Their total salary is:')
+            .attr('x', textX)
+            .attr('y', textY + fontSize * 3)
+            .style("display", 'none')
+            .style('text-anchor', "end")
+            .style('fill', "blue")
+            .style("font-size", fontSize + "px");
+
+        mapSvg.selectAll('.symbol')
+            .on("mouseover", handleMouseOver)
+            .on("mouseout", handleMouseOut);
+
+        //STEP 3.1 AND 3.2
+        function handleMouseOver(d, i) {
+            var stateName = "STATE NAME";//your work here
+            var totalSalary = "TOTAL SALARY";//your work here
+            var employees = d.properties.employees;
+            var employeeNames = "";
+            for (var idx in employees) {
+                var employeeIndex = employees[idx];
+                employeeNames += salaryData[employeeIndex].name + " ";
+                if (idx != employees.length - 1) {
+                    employeeNames += "and "
+                }
+                //STEP 3.2 your work here
+            }
+            employeeInfo.text(employeeNames + "work(s) in " + stateName)
+                .style('display', 'inline');
+
+            salaryInfo.text("Their total salary is: " + totalSalary)
+                .style('display', 'inline')
+        }
+
+        function handleMouseOut(d, i) {
+            employeeInfo.style('display', 'none');
+            salaryInfo.style('display', 'none');
+            //STEP 3.2 your work here
+        }
+    }
+</script>
+
+</body>
+</html>
