@@ -16,8 +16,8 @@
 <body>
 
 <h1>Lab 5-D3(3)</h1>
-<p>User Name:</p>
-<p>Lab Partner:</p>
+<p>User Name: Jie-Wei Wu</p>
+<p>Lab Partner: Jin Xiu</p>
 
 <script type="text/javascript">
     /////////////////settings for chart ////
@@ -38,14 +38,15 @@
 
     //Step 0.3 load the data and call the function ready
     queue()
-        .defer(d3.json, "salaryData.json")
-        .defer(d3.json, "us.json")
+        .defer(d3.json, 'salaryData.json')
+        .defer(d3.json, 'us.json')
         .await(ready);
 
 
     function ready(error, sd, u) {
         // this function is called after all datasets are loaded.
         //the order the variables(sd and u) is decided by our queue.
+        console.log('sd:',sd);
         var salaryData = sd;
         var us = u;
         //Step 0.4 update the data
