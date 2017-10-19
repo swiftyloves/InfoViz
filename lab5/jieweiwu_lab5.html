@@ -9,8 +9,8 @@
     <!-- files for lab5  -->
     <link rel="stylesheet" type="text/css" href="lab5.css">
     <script src="lab5HelperFunctions.js"></script>
-    <script src="lab5Pie.js"></script>
-    <script src="lab5Map.js"></script>
+    <script src="jieweiwu_Pie.js"></script>
+    <script src="jieweiwu_Map.js"></script>
 </HEAD>
 
 <body>
@@ -118,8 +118,8 @@
 
         //STEP 3.1 AND 3.2
         function handleMouseOver(d, i) {
-            var stateName = "STATE NAME";//your work here
-            var totalSalary = "TOTAL SALARY";//your work here
+            var stateName = d.properties.name;//your work here
+            var totalSalary = d.properties.totalSalary;//your work here
             var employees = d.properties.employees;
             var employeeNames = "";
             for (var idx in employees) {
@@ -129,6 +129,10 @@
                     employeeNames += "and "
                 }
                 //STEP 3.2 your work here
+                pieSvg.select('.pie' + employees[idx])
+                .selectAll('.arc')
+                .transition()
+                .style('fill', (d, i) => colorScale(-i-1));
             }
             employeeInfo.text(employeeNames + "work(s) in " + stateName)
                 .style('display', 'inline');
@@ -141,7 +145,11 @@
             employeeInfo.style('display', 'none');
             salaryInfo.style('display', 'none');
             //STEP 3.2 your work here
-        }
+            pieSvg.selectAll('g')
+            .selectAll('.arc')
+            .transition()
+            .style('fill', (d, i) => colorScale(i));
+        };
     }
 </script>
 
