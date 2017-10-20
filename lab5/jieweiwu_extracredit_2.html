@@ -1,0 +1,261 @@
+<html>
+<HEAD>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+    <!-- files for lab5  -->
+    <link rel="stylesheet" type="text/css" href="lab5.css">
+    <script src="lab5HelperFunctions.js"></script>
+    <script src="jieweiwu_Pie.js"></script>
+    <script src="jieweiwu_Map.js"></script>
+
+    <link href="c3-0.4.18/c3.css" rel="stylesheet">
+    <script src="c3-0.4.18/c3.min.js"></script>
+</HEAD>
+
+<body>
+
+<h1>Lab 5-D3(3)</h1>
+<p>User Name: Jie-Wei Wu</p>
+<p>Lab Partner: Jin Xiu</p>
+
+<script type="text/javascript">
+    /////////////////settings for chart ////
+    var svgWidth = 1200;
+    var svgHeight = 600;
+    var padding = 20;
+    //////////////////settings for charts/////////////////////
+    var subChartHorizontalN = 10;//number of subCharts in one row
+
+    //////////////////settings for ranges/////////////////////
+    var meansByDept = {};
+    var overunderRange = {};
+    var salaryRange = {};
+    var salaryCompRange = {};
+
+
+    var projectList = ["salaryA", "salaryB", "salaryC", "salaryD"];
+
+    //Step 0.3 load the data and call the function ready
+    queue()
+        .defer(d3.json, 'salaryData.json')
+        .defer(d3.json, 'us.json')
+        .await(ready);
+
+
+    function ready(error, sd, u) {
+        // this function is called after all datasets are loaded.
+        //the order the variables(sd and u) is decided by our queue.
+        console.log('sd:',sd);
+        var salaryData = sd;
+        var us = u;
+        //Step 0.4 update the data
+        updateDataAndRange(salaryData, projectList);
+
+        //Part 1 draw pie chart
+        //set up svg for pie charts
+        var pieSvg = d3.select("body")
+            .append("svg")
+            .attr("class", "pie")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight)
+            .style("top", padding + "px")
+            .style("left", padding + "px");
+
+        //Part1 draw pie chart and store
+        //Edit in pie.js
+        var colorScale = drawPie(salaryData, projectList, pieSvg);
+
+        //Part 2 draw map
+        // Edit in map.js
+        var mapSvg = d3.select("body")
+            .append("svg")
+            .attr("class", "map")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight);
+        var symbols = drawMap(us, salaryData, mapSvg);
+
+        
+        // extra
+        c3jsLib(salaryData, pieSvg, colorScale);
+        // let c3BarBlock = d3.select("body").select("#chart").select(".c3-event-rects");
+
+        
+        //Part 3 Add interaction
+        addInteractivity(mapSvg, symbols, salaryData, pieSvg, colorScale);
+
+        
+
+    }
+
+    let c3jsLib = function(salaryData, pieSvg, colorScale) {
+        let ele = document.createElement('div');
+        ele.id = "chart"
+        document.body.append(ele);
+        let dataA = ['salaryA'];
+        let dataB = ['salaryB'];
+        let dataC = ['salaryC'];
+
+        for (let i in salaryData) {
+            dataA.push(salaryData[i].salaryA);
+            dataB.push(salaryData[i].salaryB);
+            dataC.push(salaryData[i].salaryC);
+        }
+
+        var chart = c3.generate({
+            bindto: '#chart',
+            data: {
+                columns: [
+                    dataA
+                ],
+                type: 'bar'
+            },
+            bar: {
+                width: {
+                    ratio: 0.5 // this makes bar width 50% of length between ticks
+                }
+            },
+            oninit: function() {
+
+            },
+            onmouseover: function () {
+                // console.log(this);
+                
+            }
+        });
+        setTimeout(function () {
+            chart.load({
+                columns: [
+                    dataB
+                ]
+            });
+        }, 500);
+        setTimeout(function () {
+            chart.load({
+                columns: [
+                    dataC
+                ]
+            });
+        }, 1500);
+
+        setTimeout(function () {
+            let eles = document.querySelectorAll("rect")
+
+
+            for (let i = 6; i < eles.length - 2; i++) {
+                let ind = i - 6;
+                eles[i].classList.add("c3Rect" + ind);
+                eles[i].addEventListener("mouseover", function(e){
+
+                    console.log('mouseover')
+                    pieSvg.select('.pie' + i)
+                    .selectAll('.arc')
+                    .transition()
+                    .style('fill', (d, i) => colorScale(-i-1));
+                });
+                eles[i].addEventListener("mouseout", function(e){
+
+                    console.log('mouseout')
+                    pieSvg.select('.pie' + i)
+                    .selectAll('.arc')
+                    .transition()
+                    .style('fill', (d, i) => colorScale(i));
+                });
+            }
+            
+        }, 1800);
+
+        // mapSvg.selectAll('.symbol')
+        //     .on("mouseover", handleMouseOver)
+        //     .on("mouseout", handleMouseOut);
+    };
+
+    //part 3 add interaction
+    function addInteractivity(mapSvg, symbols, salaryData, pieSvg, colorScale, c3BarBlock) {
+        //settings for for text.
+        var textX = svgWidth - padding;
+        var textY = svgHeight * 0.2;
+        var fontSize = 20;
+        var mapInfo = mapSvg.append('g')
+            .attr("class", "information");
+        //Initiate 3 variables for each line.
+        var line1 = mapInfo.append("text")
+            .text('Employee Data:')
+            .style('text-anchor', "end")
+            .attr('x', textX)
+            .attr('y', textY)
+            .style('fill', "white")
+            .style("font-size", fontSize * 1.5 + "px");
+        var employeeInfo = mapInfo.append("text")
+            .text('Employee: work(s) in ')
+            .attr('x', textX)
+            .attr('y', textY + fontSize * 2)
+            .style("display", 'none')
+            .style('text-anchor', "end")
+            .style('fill', "darkblue")
+            .style("font-size", fontSize + "px");
+        var salaryInfo = mapInfo.append("text")
+            .text('Their total salary is:')
+            .attr('x', textX)
+            .attr('y', textY + fontSize * 3)
+            .style("display", 'none')
+            .style('text-anchor', "end")
+            .style('fill', "blue")
+            .style("font-size", fontSize + "px");
+
+        mapSvg.selectAll('.symbol')
+            .on("mouseover", handleMouseOver)
+            .on("mouseout", handleMouseOut);
+
+        //STEP 3.1 AND 3.2
+        function handleMouseOver(d, i) {
+            var stateName = d.properties.name;//your work here
+            var totalSalary = d.properties.totalSalary;//your work here
+            var employees = d.properties.employees;
+            var employeeNames = "";
+            for (var idx in employees) {
+                var employeeIndex = employees[idx];
+                employeeNames += salaryData[employeeIndex].name + " ";
+                if (idx != employees.length - 1) {
+                    employeeNames += "and "
+                }
+                //STEP 3.2 your work here
+                pieSvg.select('.pie' + employees[idx])
+                .selectAll('.arc')
+                .transition()
+                .style('fill', (d, i) => colorScale(-i-1));
+
+                // c3BarBlock
+                console.log(123)
+                d3.select('.c3Rect' + i)
+                .transition()
+                .attr("width", 100)
+                .style('fill', (d, i) => colorScale(-i-1));
+
+
+            }
+
+            employeeInfo.text(employeeNames + "work(s) in " + stateName)
+                .style('display', 'inline');
+
+            salaryInfo.text("Their total salary is: " + totalSalary)
+                .style('display', 'inline')
+        }
+
+        function handleMouseOut(d, i) {
+            employeeInfo.style('display', 'none');
+            salaryInfo.style('display', 'none');
+            //STEP 3.2 your work here
+            pieSvg.selectAll('g')
+            .selectAll('.arc')
+            .transition()
+            .style('fill', (d, i) => colorScale(i));
+        };
+    }
+</script>
+
+</body>
+</html>
